@@ -103,19 +103,19 @@ public class User {
 		this.email = email;
 	}
 
-	public boolean isReviewer() {
+	public boolean getisReviewer() {
 		return isReviewer;
 	}
 
-	public void setReviewer(boolean isReviewer) {
+	public void setisReviewer(boolean isReviewer) {
 		this.isReviewer = isReviewer;
 	}
 
-	public boolean isAdmin() {
+	public boolean getisAdmin() {
 		return isAdmin;
 	}
 
-	public void setAdmin(boolean isAdmin) {
+	public void setisAdmin(boolean isAdmin) {
 		this.isAdmin = isAdmin;
 	}
 
