@@ -57,7 +57,8 @@ public class RequestController {
 		
 		if(!requestExists) {
 			request.setStatus(NEW);
-			request.setSubmittedDate(LocalDateTime.now()); //Test again
+			request.setDeliveryMode("Pickup");
+			request.setSubmittedDate(LocalDateTime.now());
 		}
 		
 		return request;
