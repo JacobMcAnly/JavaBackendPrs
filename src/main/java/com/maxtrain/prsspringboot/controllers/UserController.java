@@ -37,16 +37,16 @@ public class UserController {
 	
 	// method handles HTTP GET requests to the URL "/users" and returns the user with the specified ID
 	@GetMapping("/{id}")
-	public User getById(@PathVariable int id) {
-		User user = new User();
-		Optional<User> optionalUser = userRepo.findById(id);
-		
-		if(optionalUser.isPresent()) {
-			// set the User object to the retrieved request
-			user = optionalUser.get();
-		}
-		
-		return user;
+	public ResponseEntity<User> getById(@PathVariable int id) {
+	    Optional<User> optionalUser = userRepo.findById(id);
+
+	    if (!optionalUser.isPresent()) {
+	        // Return a 404 response if a user with the specified ID was not found
+	        return ResponseEntity.notFound().build();
+	    }
+
+	    User user = optionalUser.get();
+	    return ResponseEntity.ok(user);
 	}
 	
 	// method handles HTTP requests to the URL("/users") and creates a new user using the request body
@@ -83,22 +83,18 @@ public class UserController {
 	
 	// method handles HTTP DELETE requests to the URL "/users/{id}" and deletes the user with the specified ID
 	@DeleteMapping("/{id}")
-	public User delete(@PathVariable int id) {
-		User user = new User();
-		// Retrieve the user with the specified ID (if it exists)
-		Optional<User> optionalUser = userRepo.findById(id);
-		
-		// Check if a user with the specified ID was found
-		boolean userExists = optionalUser.isPresent();
-		
-		if(userExists) {
-			// get the User object from the Optional<User> object and assign it to the user variable
-			user = optionalUser.get();
-			// delete the User object with the specified ID from the userRepo
-			userRepo.deleteById(id);
-		}
+	public ResponseEntity<Object> delete(@PathVariable int id) {
+	    Optional<User> optionalUser = userRepo.findById(id);
 
-		return user;
+	    if (!optionalUser.isPresent()) {
+	        // Return a 404 response if a user with the specified ID was not found
+	        return ResponseEntity.notFound().build();
+	    }
+
+	    User user = optionalUser.get();
+	    userRepo.deleteById(id);
+
+	    return ResponseEntity.ok().build();
 	}
 	
 	@PostMapping("/login")

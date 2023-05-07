@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,17 +37,16 @@ public class ProductController {
 	
 	// method handles HTTP GET requests to the URL "/products/{id}" (e.g. "/products/1") and returns the product with the specified ID
 	@GetMapping("/{id}")
-	public Product getById(@PathVariable int id) {
-		Product product = new Product();
-		// Retrieve the product with the specified ID (if it exists)
-		Optional<Product> optionalProduct = productRepo.findById(id); 
-		
-		if(optionalProduct.isPresent()) {
-			// Set the Product object to the retrieved product
-			product = optionalProduct.get(); 
-		}
-		
-		return product; 
+	public ResponseEntity<Product> getById(@PathVariable int id) {
+	    Optional<Product> optionalProduct = productRepo.findById(id);
+
+	    if (!optionalProduct.isPresent()) {
+	        // Return a 404 response if a product with the specified ID was not found
+	        return ResponseEntity.notFound().build();
+	    }
+
+	    Product product = optionalProduct.get();
+	    return ResponseEntity.ok(product);
 	}
 	
 	// method handles HTTP POST requests to the base URL ("/products") and creates a new product using the request body
@@ -84,22 +84,18 @@ public class ProductController {
 	
 	// method handles HTTP DELETE requests to the URL "/products/{id}" and deletes the product with the specified ID
 	@DeleteMapping("/{id}")
-	public Product delete(@PathVariable int id) {
-		Product product = new Product();
-		// Retrieve the product with the specified ID (if it exists)
-		Optional<Product> optionalProduct = productRepo.findById(id); 
-		
-		// Check if a product with the same ID already exists
-		boolean productExists = optionalProduct.isPresent(); 
-		
-		if(productExists) {
-			// get the Product object from the Optional<Product> object and assign it to the product variable
-			product = optionalProduct.get();
-			// delete the Product object with the specified ID from the productRepo
-			productRepo.deleteById(id);  
-		}
-		
-		return product; 
+	public ResponseEntity<Object> delete(@PathVariable int id) {
+	    Optional<Product> optionalProduct = productRepo.findById(id);
+
+	    if (!optionalProduct.isPresent()) {
+	        // Return a 404 response if a product with the specified ID was not found
+	        return ResponseEntity.notFound().build();
+	    }
+
+	    Product product = optionalProduct.get();
+	    productRepo.deleteById(id);
+
+	    return ResponseEntity.ok().build();
 	}
 
 }

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -88,25 +89,20 @@ public class RequestLineController {
 		return requestLine;
 	}
 
-	// method handles HTTP DELETE requests to the URL "/request-lines/{id}" and deletes the request line with the specified ID
+	
 	@DeleteMapping("/{id}")
-	public RequestLine delete(@PathVariable int id) {
-		RequestLine requestLine = new RequestLine();
-		// Retrieve the request line with the specified ID (if it exists)
-		Optional<RequestLine> optionalRequestLine = requestLineRepo.findById(id);
-		
-		// check if a request line with the specified ID was found
-		boolean requestLineExists = optionalRequestLine.isPresent();
+	public ResponseEntity<?> delete(@PathVariable int id) {
+	    Optional<RequestLine> optionalRequestLine = requestLineRepo.findById(id);
 
-		if (requestLineExists) {
-			// get the RequestLine object from the Optional<RequestLine> object and assign it to the request line variable
-			requestLine = optionalRequestLine.get();
-			// delete the RequestLine object with the specified ID from the requestLineRepo
-			requestLineRepo.deleteById(id);
-			recalculateTotal(requestLine.getRequest());
-		}
+	    if (!optionalRequestLine.isPresent()) {
+	        return ResponseEntity.notFound().build();
+	    }
 
-		return requestLine;
+	    RequestLine requestLine = optionalRequestLine.get();
+	    requestLineRepo.deleteById(id);
+	    recalculateTotal(requestLine.getRequest());
+
+	    return ResponseEntity.ok(requestLine);
 	}
 
 	@GetMapping("/lines-for-request/{requestId}")

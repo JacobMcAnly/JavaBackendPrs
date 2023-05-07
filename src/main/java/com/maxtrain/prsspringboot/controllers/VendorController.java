@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,15 +34,16 @@ public class VendorController {
 		}
 		
 		@GetMapping("/{id}")
-		public Vendor getById(@PathVariable int id) {
-			Vendor vendor = new Vendor();
-			Optional<Vendor> optionalVendor = vendorRepo.findById(id);
-			
-			if(optionalVendor.isPresent()) {
-				vendor = optionalVendor.get();
-			}
-			
-			return vendor;
+		public ResponseEntity<Vendor> getById(@PathVariable int id) {
+		    Optional<Vendor> optionalVendor = vendorRepo.findById(id);
+
+		    if (!optionalVendor.isPresent()) {
+		        // Return a 404 response if a vendor with the specified ID was not found
+		        return ResponseEntity.notFound().build();
+		    }
+
+		    Vendor vendor = optionalVendor.get();
+		    return ResponseEntity.ok(vendor);
 		}
 
 		@PostMapping("")
@@ -71,17 +73,17 @@ public class VendorController {
 	}
 	
 	@DeleteMapping("/{id}")
-	public Vendor delete(@PathVariable int id) {
-		Vendor vendor = new Vendor();
-		Optional<Vendor> optionalVendor = vendorRepo.findById(id);
-		
-		boolean vendorExists = optionalVendor.isPresent();
-		
-		if(vendorExists) {
-			vendor = optionalVendor.get();
-			vendorRepo.deleteById(id);
-		}
-		
-		return vendor;
+	public ResponseEntity<Object> delete(@PathVariable int id) {
+	    Optional<Vendor> optionalVendor = vendorRepo.findById(id);
+
+	    if (!optionalVendor.isPresent()) {
+	        // Return a 404 response if a vendor with the specified ID was not found
+	        return ResponseEntity.notFound().build();
+	    }
+
+	    Vendor vendor = optionalVendor.get();
+	    vendorRepo.deleteById(id);
+
+	    return ResponseEntity.ok().build();
 	}
 }

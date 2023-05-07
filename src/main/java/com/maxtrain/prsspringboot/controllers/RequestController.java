@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,16 +43,17 @@ public class RequestController {
 	
 	// method handles HTTP GET requests to the URL "/requests/{id}" and returns the request with the specified ID
 	@GetMapping("/{id}")
-	public Request getById(@PathVariable int id) {
-		Request request = new Request();
-		Optional<Request> optionalRequest = requestRepo.findById(id);
-		
-		if(optionalRequest.isPresent()) {
-			// set the Request object to the retrieved request
-			request = optionalRequest.get(); 
-		}
-		
-		return request;
+	public ResponseEntity<Request> getById(@PathVariable int id) {
+	    Optional<Request> optionalRequest = requestRepo.findById(id);
+
+	    if (!optionalRequest.isPresent()) {
+	        // Return a 404 response if a request with the specified ID was not found
+	        return ResponseEntity.notFound().build();
+	    }
+
+	    Request request = optionalRequest.get();
+
+	    return ResponseEntity.ok().body(request);
 	}
 	
 	// method handles HTTP POST requests to the base URL ("/requests") and creates a new request using the request body
@@ -90,22 +92,18 @@ public class RequestController {
 	
 	// method handles HTTP DELETE requests to the URL "/requests/{id}" and deletes the request with the specified ID
 	@DeleteMapping("/{id}")
-	public Request delete(@PathVariable int id) {
-		Request request = new Request();
-		// Retrieve the request with the specified ID (if it exists)
-		Optional<Request> optionalRequest = requestRepo.findById(id); 
-		
-		// Check if a request with the specified ID was found
-		boolean requestExists = optionalRequest.isPresent(); 
-		
-		if(requestExists) { 
-			// get the Request object from the Optional<Request> object and assign it to the request variable
-			request = optionalRequest.get(); 
-			// delete the Request object with the specified ID from the productRepo
-			requestRepo.deleteById(id); 
-		}
-		
-		return request;
+	public ResponseEntity<Object> delete(@PathVariable int id) {
+	    Optional<Request> optionalRequest = requestRepo.findById(id);
+
+	    if (!optionalRequest.isPresent()) {
+	        // Return a 404 response if a request with the specified ID was not found
+	        return ResponseEntity.notFound().build();
+	    }
+
+	    Request request = optionalRequest.get();
+	    requestRepo.deleteById(id);
+
+	    return ResponseEntity.ok().build();
 	}
 	
 	// method handles HTTP GET requests to "/list-review/{userId}", returns a list of Requests
