@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +20,7 @@ import com.maxtrain.prsspringboot.entities.Request;
 import com.maxtrain.prsspringboot.repositories.RequestRepository;
 
 @RestController
+@CrossOrigin(origins="http://localhost:4200")
 @RequestMapping("/requests")
 public class RequestController {
 
@@ -30,6 +33,7 @@ public class RequestController {
 	@Autowired
 	private RequestRepository requestRepo;
 	
+	// method handles HTTP GET requests to the URL "/requests" and returns a list of all requests
 	@GetMapping("")
 	public List<Request> getAll(){
 		List<Request> requests = requestRepo.findAll();
@@ -37,64 +41,76 @@ public class RequestController {
 		return requests;
 	}
 	
+	// method handles HTTP GET requests to the URL "/requests/{id}" and returns the request with the specified ID
 	@GetMapping("/{id}")
-	public Request getById(@PathVariable int id) {
-		Request request = new Request();
-		Optional<Request> optionalRequest = requestRepo.findById(id);
-		
-		if(optionalRequest.isPresent()) {
-			request = optionalRequest.get();
-		}
-		
-		return request;
+	public ResponseEntity<Request> getById(@PathVariable int id) {
+	    Optional<Request> optionalRequest = requestRepo.findById(id);
+
+	    if (!optionalRequest.isPresent()) {
+	        // Return a 404 response if a request with the specified ID was not found
+	        return ResponseEntity.notFound().build();
+	    }
+
+	    Request request = optionalRequest.get();
+
+	    return ResponseEntity.ok().body(request);
 	}
 	
+	// method handles HTTP POST requests to the base URL ("/requests") and creates a new request using the request body
 	@PostMapping("")
 	public Request create(@RequestBody Request newRequest) {
 		Request request = requestRepo.save(newRequest);
 		
 		boolean requestExists =  requestRepo.existsById(newRequest.getId());
 		
-		if(!requestExists) {
+		if(!requestExists) { 
 			request.setStatus(NEW);
 			request.setDeliveryMode("Pickup");
 			request.setSubmittedDate(LocalDateTime.now());
+			// save the new request to the repository
+			request = requestRepo.save(newRequest); 
 		}
 		
 		return request;
 	}
 	
+	// method handles HTTP PUT requests to the base URL ("/products") and updates an existing product using the request body
 	@PutMapping("")
 	public Request update(@RequestBody Request updatedRequest) {
 		Request request = new Request();
 		
+		 // Check if the specified request exists
 		boolean requestExists = requestRepo.findById(updatedRequest.getId()).isPresent();
 		
-		if (requestExists) {
-			request = requestRepo.save(updatedRequest);
+		if (requestExists) { 
+			// Update the request in the repository
+			request = requestRepo.save(updatedRequest); 
 		}
 		
 		return request;
 	}
 	
+	// method handles HTTP DELETE requests to the URL "/requests/{id}" and deletes the request with the specified ID
 	@DeleteMapping("/{id}")
-	public Request delete(@PathVariable int id) {
-		Request request = new Request();
-		Optional<Request> optionalRequest = requestRepo.findById(id);
-		
-		boolean requestExists = optionalRequest.isPresent();
-		
-		if(requestExists) {
-			request = optionalRequest.get();
-			requestRepo.deleteById(id);
-		}
-		
-		return request;
+	public ResponseEntity<Object> delete(@PathVariable int id) {
+	    Optional<Request> optionalRequest = requestRepo.findById(id);
+
+	    if (!optionalRequest.isPresent()) {
+	        // Return a 404 response if a request with the specified ID was not found
+	        return ResponseEntity.notFound().build();
+	    }
+
+	    Request request = optionalRequest.get();
+	    requestRepo.deleteById(id);
+
+	    return ResponseEntity.ok().build();
 	}
 	
+	// method handles HTTP GET requests to "/list-review/{userId}", returns a list of Requests
 	@GetMapping("/list-review/{userId}")
 	public List<Request> getAllForReview(@PathVariable int userId) {
-		List<Request> requests = requestRepo.findByStatusAndUserIdNot(REVIEW, userId);
+		// Retrieve requests with status other than "REVIEW" and userId not equal to given id
+		List<Request> requests = requestRepo.findByStatusAndUserIdNot(REVIEW, userId); 
 		
 		return requests;
 	}
@@ -103,12 +119,14 @@ public class RequestController {
 	public Request approve(@RequestBody Request approvedRequest) {
 		Request request = new Request();
 		
-		boolean requestExists = requestRepo.existsById(approvedRequest.getId());
+		// Check if the request with the ID of the input Request object exists in the repository
+		boolean requestExists = requestRepo.existsById(approvedRequest.getId()); 
 		
 		if(requestExists) {
-			approvedRequest.setStatus(APPROVED);
-			
-			request = requestRepo.save(approvedRequest);
+			// update the status to "APPROVED"
+			approvedRequest.setStatus(APPROVED); 
+			// Save the updated Request object to the repository
+			request = requestRepo.save(approvedRequest); 
 		}
 		
 		return request;
@@ -119,12 +137,15 @@ public class RequestController {
 	public Request reject(@RequestBody Request rejectedRequest) {
 		Request request = new Request();
 		
-		boolean requestExists = requestRepo.existsById(rejectedRequest.getId());
+		// Check if the request with the ID of the input Request object exists in the repository
+		boolean requestExists = requestRepo.existsById(rejectedRequest.getId()); 
 		
 		if(requestExists) {
-			rejectedRequest.setStatus(REJECTED);
+			// update the status to "REJECTED"
+			rejectedRequest.setStatus(REJECTED); 
 			
-			request = requestRepo.save(rejectedRequest);
+			// Save the updated Request object to the repository
+			request = requestRepo.save(rejectedRequest); 
 		}
 		
 		return request;
@@ -134,32 +155,42 @@ public class RequestController {
 	public Request reopen(@RequestBody Request reopenedRequest) {
 		Request request = new Request();
 		
-		boolean requestExists = requestRepo.existsById(reopenedRequest.getId());
+		// Check if the request with the ID of the input Request object exists in the repository
+		boolean requestExists = requestRepo.existsById(reopenedRequest.getId()); 
 		
 		if(requestExists) {
-			reopenedRequest.setStatus(REOPENED);
+			// update the status to "REOPENED"
+			reopenedRequest.setStatus(REOPENED); 
 			
-			request = requestRepo.save(reopenedRequest);
+			// Save the updated Request object to the repository
+			request = requestRepo.save(reopenedRequest); 
 		}
 		
 		return request;
 	}
+	
 	@PutMapping("/submit-for-review")
 	public Request submitForReview(@RequestBody Request reviewRequest) {
 	    Request request = new Request();
 	    
-	    boolean requestExists = requestRepo.existsById(reviewRequest.getId());
+	    // Check if the request with the ID of the input Request object exists in the repository
+	    boolean requestExists = requestRepo.existsById(reviewRequest.getId()); 
 	    
 	    if (requestExists) {
 	        request = requestRepo.findById(reviewRequest.getId()).get();
 	        if (request.getTotal() <= 50) {
+	        	// update the status to "APPROVED"
 	            request.setStatus(APPROVED);
-	            request.setSubmittedDate(LocalDateTime.now());
+	            // set the current date/time
+	            request.setSubmittedDate(LocalDateTime.now()); 
 	        } else {
-	            request.setStatus(REVIEW);
-	            request.setSubmittedDate(LocalDateTime.now());
+	        	// update the status to "REVIEW"
+	            request.setStatus(REVIEW); 
+	            // set the current date/time
+	            request.setSubmittedDate(LocalDateTime.now()); 
 	        }
-	        requestRepo.save(request);
+	        // save the updated Request object to the repository
+	        requestRepo.save(request); 
 	    }
 	    return request;
 	}		
