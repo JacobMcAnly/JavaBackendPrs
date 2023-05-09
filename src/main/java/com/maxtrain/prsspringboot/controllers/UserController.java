@@ -65,20 +65,17 @@ public class UserController {
 		
 	}
 	
-	// method handles HTTP PUT requests to the URL ("/users") and updates an existing user using the request body
 	@PutMapping("")
-	public User updateUser(@RequestBody User updatedUser) {
-		User user = new User();
-		
-		 // Check if the specified user exists
-		boolean userExists = userRepo.findById(updatedUser.getId()).isPresent();
-		
-		if (userExists) {
-			// Update the request in the repository
-			user = userRepo.save(updatedUser);
-		}
-				
-		return user;
+	public ResponseEntity<User> updateUser(@RequestBody User updatedUser) {
+	    // Check if the specified user exists
+	    Optional<User> optionalUser = userRepo.findById(updatedUser.getId());
+
+	    if (!optionalUser.isPresent()) {
+	    	return ResponseEntity.notFound().build();
+	    } 
+	    
+	    User user = userRepo.save(updatedUser);
+	    return ResponseEntity.ok(user);
 	}
 	
 	// method handles HTTP DELETE requests to the URL "/users/{id}" and deletes the user with the specified ID
@@ -98,15 +95,6 @@ public class UserController {
 	}
 	
 	@PostMapping("/login")
-//	public User authenticate(@RequestBody User loginUser) {
-//		User user = new User();
-//		// Retrieve the User object from the database that matches the username and password passed in via the loginUser object
-//		user = userRepo.findByUsernameAndPassword(loginUser.getUsername(), loginUser.getPassword());
-//		
-//		// return the user object
-//		return user;
-//		
-//	}
 	public ResponseEntity authenticate(@RequestBody User loginUser) {
 	User user = userRepo.findByUsernameAndPassword(loginUser.getUsername(), loginUser.getPassword());
 	if (user == null) {

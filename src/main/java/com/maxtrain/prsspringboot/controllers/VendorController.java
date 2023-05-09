@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.maxtrain.prsspringboot.entities.User;
 import com.maxtrain.prsspringboot.entities.Vendor;
 import com.maxtrain.prsspringboot.repositories.VendorRepository;
 
@@ -60,16 +61,16 @@ public class VendorController {
 		}
 		
 	@PutMapping("")
-	public Vendor update(@RequestBody Vendor updatedVendor) {
-		Vendor vendor = new Vendor();
-		
-		boolean vendorExists = vendorRepo.findById(updatedVendor.getId()).isPresent();
-		
-		if(vendorExists) {
-			vendor = vendorRepo.save(updatedVendor);
-		}
-		
-		return vendor;
+	public ResponseEntity<Vendor> updateVendor(@RequestBody Vendor updatedVendor) {
+	    // Check if the specified user exists
+	    Optional<Vendor> optionalVendor = vendorRepo.findById(updatedVendor.getId());
+
+	    if (!optionalVendor.isPresent()) {
+	    	return ResponseEntity.notFound().build();
+	    } 
+	    
+	    Vendor vendor = vendorRepo.save(updatedVendor);
+	    return ResponseEntity.ok(vendor);
 	}
 	
 	@DeleteMapping("/{id}")
