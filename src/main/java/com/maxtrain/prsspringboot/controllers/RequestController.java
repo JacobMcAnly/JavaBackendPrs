@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.maxtrain.prsspringboot.entities.Request;
+import com.maxtrain.prsspringboot.entities.User;
 import com.maxtrain.prsspringboot.repositories.RequestRepository;
 
 @RestController
@@ -76,18 +77,16 @@ public class RequestController {
 	
 	// method handles HTTP PUT requests to the base URL ("/products") and updates an existing product using the request body
 	@PutMapping("")
-	public Request update(@RequestBody Request updatedRequest) {
-		Request request = new Request();
-		
-		 // Check if the specified request exists
-		boolean requestExists = requestRepo.findById(updatedRequest.getId()).isPresent();
-		
-		if (requestExists) { 
-			// Update the request in the repository
-			request = requestRepo.save(updatedRequest); 
-		}
-		
-		return request;
+	public ResponseEntity<Request> updateRequest(@RequestBody Request updatedRequest) {
+	    // Check if the specified user exists
+	    Optional<Request> optionalRequest = requestRepo.findById(updatedRequest.getId());
+
+	    if (!optionalRequest.isPresent()) {
+	    	return ResponseEntity.notFound().build();
+	    } 
+	    
+	    Request request = requestRepo.save(updatedRequest);
+	    return ResponseEntity.ok(request);
 	}
 	
 	// method handles HTTP DELETE requests to the URL "/requests/{id}" and deletes the request with the specified ID

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.maxtrain.prsspringboot.entities.Request;
 import com.maxtrain.prsspringboot.entities.RequestLine;
+import com.maxtrain.prsspringboot.entities.User;
 import com.maxtrain.prsspringboot.repositories.RequestLineRepository;
 import com.maxtrain.prsspringboot.repositories.RequestRepository;
 
@@ -74,19 +75,16 @@ public class RequestLineController {
 
 	// method handles HTTP PUT requests to the base URL ("/request-lines") and updates an existing request line using the request body
 	@PutMapping("")
-	public RequestLine update(@RequestBody RequestLine updatedRequestLine) {
-		RequestLine requestLine = new RequestLine();
+	public ResponseEntity<RequestLine> updateRequestLine(@RequestBody RequestLine updatedRequestLine) {
+	    // Check if the specified user exists
+	    Optional<RequestLine> optionalRequestLine = requestLineRepo.findById(updatedRequestLine.getId());
 
-		// Check if a request line with the same ID exists
-		boolean requestLineExists = requestLineRepo.findById(updatedRequestLine.getId()).isPresent();
-
-		if (requestLineExists) {
-			// Save the updated request line to the repository
-			requestLine = requestLineRepo.save(updatedRequestLine);
-			recalculateTotal(requestLine.getRequest());
-		}
-
-		return requestLine;
+	    if (!optionalRequestLine.isPresent()) {
+	    	return ResponseEntity.notFound().build();
+	    } 
+	    
+	    RequestLine requestLine = requestLineRepo.save(updatedRequestLine);
+	    return ResponseEntity.ok(requestLine);
 	}
 
 	

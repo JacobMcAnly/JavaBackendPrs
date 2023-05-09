@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.maxtrain.prsspringboot.entities.Product;
+import com.maxtrain.prsspringboot.entities.User;
 import com.maxtrain.prsspringboot.repositories.ProductRepository;
 
 @RestController
@@ -68,18 +69,16 @@ public class ProductController {
 	
 	// method handles HTTP PUT requests to the base URL ("/products") and updates an existing product using the request body
 	@PutMapping("")
-	public Product update(@RequestBody Product updatedProduct) {
-		Product product = new Product();
-		
-		// Check if a product with the same ID already exists
-		boolean productExists = productRepo.findById(updatedProduct.getId()).isPresent(); 
-		
-		if (productExists) {
-			// Update the product in the repository
-			product = productRepo.save(updatedProduct); 
-		}
-		
-		return product; 
+	public ResponseEntity<Product> updateProduct(@RequestBody Product updatedProduct) {
+	    // Check if the specified user exists
+	    Optional<Product> optionalProduct = productRepo.findById(updatedProduct.getId());
+
+	    if (!optionalProduct.isPresent()) {
+	    	return ResponseEntity.notFound().build();
+	    } 
+	    
+	    Product product = productRepo.save(updatedProduct);
+	    return ResponseEntity.ok(product);
 	}
 	
 	// method handles HTTP DELETE requests to the URL "/products/{id}" and deletes the product with the specified ID
